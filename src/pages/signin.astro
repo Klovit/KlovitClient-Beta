@@ -2,8 +2,6 @@
 import config from '../config';
 import '../styles/globals.css'
 
-
-
 import Header from "../components/head.astro";
 import Footer from '../components/footer.astro';
 import dotenv from 'dotenv';
@@ -11,16 +9,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 const { cookies, redirect } = Astro;
 
-if (process.env.INSTALLED === 'false') {
+if (config.installed != true) {
     return Astro.redirect(`/installer/start`)
 }
 
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 
-const googleauth = config.auth.supabase.oauth2.google.enabled;
-const githubauth = config.auth.supabase.oauth2.github.enabled;
-const discordauth = config.auth.supabase.oauth2.discord.enabled;
 
 if (accessToken && refreshToken) {
   return redirect("/dashboard");
@@ -29,13 +24,7 @@ const registered = Astro.url.searchParams.get('registered')! || '';
 const errorstate = Astro.url.searchParams.get('error')! || '';
 const errormsg = Astro.url.searchParams.get('error')! || '';
 const year = new Date().getFullYear()
-let oauth
-if (googleauth || discordauth || githubauth) {
-    oauth = true;
-} 
-else {
-    oauth = false
-}
+
 ---
 <!DOCTYPE html>
 <html>
@@ -47,7 +36,7 @@ else {
         <div class="antialiased">
 <main class="h-screen">
                 <div class="h-12 w-full flex">
-                    <img class="mt-2" src={config.website.icon} height="30px" width="40px" alt="icon"></img>
+                    <img class="mt-2" height="30px" width="40px" alt="icon"></img>
                     <div class="mt-2 h-12 w-full flex justify-center">
                     <nav class="inline-flex items-center justify-center rounded-lg w-fit text-sm font-medium text-white">
                         <div class="ml-1 mr-1">
@@ -169,12 +158,12 @@ Success fully registered
     <button class="relative rounded-lg text-black dark:text-white bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 font-semibold hover:from-teal-400 hover:via-blue-500 hover:to-purple-400 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black px-5 py-1"> Login </button><br>
 </div>
     <div class="flex w-full justify-center mt-2 mb-2">
-      {oauth && <span class="text-black dark:text-white col-span-3 text-lg text-center">login with</span>}
+      <span class="text-black dark:text-white col-span-3 text-lg text-center">login with</span>
   </div>
   <div class="flex justify-center">
-          {googleauth && <button value="google" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google"></i></button>}
-          {githubauth && <button value="github" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github"></i></button>}
-          {discordauth && <button value="discord" name="provider" type="submit"class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord"></i></button>}
+          <button value="google" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google"></i></button>
+          <button value="github" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github"></i></button>
+          <button value="discord" name="provider" type="submit"class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord"></i></button>
 </div>
    </form>
 </div>
@@ -190,7 +179,7 @@ Success fully registered
         <div class="antialiased">
 <main class="h-screen">
                 <div class="h-12 w-full flex">
-                    <img class="mt-2" src={config.website.icon} height="30px" width="40px" alt="icon"></img>
+                    <img class="mt-2" height="30px" width="40px" alt="icon"></img>
                     <div class="mt-2 h-12 w-full flex justify-center">
                     <nav class="inline-flex items-center justify-center rounded-lg w-fit text-sm font-medium text-white">
                         <div class="ml-1 mr-1">
@@ -307,12 +296,12 @@ Success fully registered
         <button class="relative rounded-lg text-black dark:text-white bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 font-semibold hover:from-teal-400 hover:via-blue-500 hover:to-purple-400 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black px-5 py-1"> Login </button><br>
     </div>
     <div class="flex w-full justify-center mt-2 mb-2">
-      {oauth && <span class="text-black dark:text-white col-span-3 text-lg text-center">login with</span>}
+      <span class="text-black dark:text-white col-span-3 text-lg text-center">login with</span>}
   </div>
   <div class="flex justify-center">
-    {googleauth && <button value="google" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google"></i></button>}
-    {githubauth && <button value="github" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github"></i></button>}
-    {discordauth && <button value="discord" name="provider" type="submit"class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord"></i></button>}
+    <button value="google" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google"></i></button>
+    <button value="github" name="provider" type="submit" class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github"></i></button>
+    <button value="discord" name="provider" type="submit"class="text-black dark:text-white relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord"></i></button>
 </div>
    </form>
 </div>

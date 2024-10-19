@@ -23,26 +23,7 @@ export default function PackagesForm() {
     async function fetchConfig() {
       const config_website = await db.get("config_website");
       const restype = config_website?.resource_type;
-      
-      if (restype === "GB") {
-        setRamPh('1 GB');
-        setDiskPh('2 GB');
-        setCpuPh('1 Core');
-        setSlotPh('1 Slot');
-      } else {
-        setRamPh('1024 MB');
-        setDiskPh('2048 MB');
-        setCpuPh('100%');
-        setSlotPh('1 slot');
-      }
 
-      const config_packages = await db.get("config_packages") || {};
-      setRamValue(config_packages.packages?.list?.["default"]?.ram ?? '');
-      setCpuValue(config_packages.packages?.list?.["default"]?.cpu ?? '');
-      setStorageValue(config_packages.packages?.list?.["default"]?.disk ?? '');
-      setSlotsValue(config_packages.packages?.list?.["default"]?.servers ?? '');
-      setCurrencyValue(config_packages.payments?.currency ?? '');
-      setPaypalEmailValue(config_packages.payments?.paypal?.email ?? '');
     }
 
     fetchConfig();
@@ -58,8 +39,6 @@ export default function PackagesForm() {
         <label className="ml-1">RAM: </label>
         <Input
           required
-          value={ramvalue}
-          onChange={(e) => setRamValue(e.target.value)}
           name="ram"
           type="number"
           placeholder={ramph}
@@ -70,8 +49,6 @@ export default function PackagesForm() {
         <label className="ml-1">CPU: </label>
         <Input
           required
-          value={cpuvalue}
-          onChange={(e) => setCpuValue(e.target.value)}
           name="cpu"
           type="number"
           placeholder={cpuph}
@@ -82,8 +59,6 @@ export default function PackagesForm() {
         <label className="ml-1">Storage: </label>
         <Input
           required
-          value={storagevalue}
-          onChange={(e) => setStorageValue(e.target.value)}
           name="storage"
           type="number"
           placeholder={diskph}
@@ -94,8 +69,6 @@ export default function PackagesForm() {
         <label className="ml-1">Server slots: </label>
         <Input
           required
-          value={slotsvalue}
-          onChange={(e) => setSlotsValue(e.target.value)}
           name="slots"
           type="number"
           placeholder={slotph}
@@ -114,8 +87,6 @@ export default function PackagesForm() {
       <div className="w-full grid grid-cols-2 mb-1">
         <label className="ml-1">Currency Short Code: </label>
         <Input
-          value={currencyvalue}
-          onChange={(e) => setCurrencyValue(e.target.value)}
           name="currency_code"
           maxLength={3}
           placeholder="USD"
@@ -132,8 +103,6 @@ export default function PackagesForm() {
       <div className="w-full grid grid-cols-2 mb-1">
         <label className="ml-1">PayPal Email: </label>
         <Input
-          value={paypalemailvalue}
-          onChange={(e) => setPaypalEmailValue(e.target.value)}
           name="paypal_email"
           placeholder="email@example.com"
         />

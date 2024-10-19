@@ -22,40 +22,8 @@ const year = new Date().getFullYear().toString()
 const yearWithTitle = `${year} KlovitClient`
 
 const config_website = await db.get("config_website")
-const restype = config_website.resource_type
-let ramph;
-let diskph;
-let cpuph;
-let slotph;
-if (restype === "GB") {
-    ramph = `1 GB`
-    diskph = `2 GB`
-    cpuph = `1 Core`
-    slotph = `1 Slot`
-} else {
-    ramph = `1024 MB`
-    diskph = `2048 MB`
-    cpuph = `100%`
-    slotph = `1 slot`
-}
 
 const config_currency = await db.get("config_currency") || {};
-const giftingvalue = config_currency.gifting?.enabled ?? '';
-const coinsvalue = config_currency.coins?.enabled ?? '';
-const earningvalue = config_currency.coins?.earn?.enabled ?? '';
-const atglinksvalue = config_currency.coins?.earn?.atglinks?.enabled ?? '';
-const atglinksapivaule = config_currency.coins?.earn?.atglinks?.api ?? '';
-const atglinksdailyvalue = config_currency.coins?.earn?.atglinks?.dailylimit ?? '';
-const atglinksminimumtimevalue = config_currency.coins?.earn?.atglinks?.dailylimit ?? '';
-const storevalue = config_currency.coins?.store?.enabled ?? '';
-const rampricevalue = config_currency.coins?.store?.ram?.cost ?? '';
-const rampervalue = config_currency.coins?.store?.ram?.per ?? '';
-const diskpricevault = config_currency.coins?.store?.disk?.cost ?? '';
-const diskpervaule = config_currency.coins?.store?.disk?.per ?? '';
-const cpupricevalue = config_currency.coins?.store?.cpu?.cost ?? '';
-const cpupervalue = config_currency.coins?.store?.cpu?.per ?? '';
-const slotspricevalue = config_currency.coins?.store?.slots?.cost ?? '';
-const slotspervalue = config_currency.coins?.store?.slots?.per ?? '';
 ---
 <!DOCTYPE html>
 <html>

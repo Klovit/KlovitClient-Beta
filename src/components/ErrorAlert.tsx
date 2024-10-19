@@ -1,30 +1,34 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react"; // Ensure this is correctly imported based on your project setup
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 const ErrorAlert: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Retrieve the 'error' query parameter from the URL
     const searchParams = new URLSearchParams(window.location.search);
     const errorMessage = searchParams.get("error");
-    setError(errorMessage);
-  }, []); // Empty dependency array to ensure this only runs once when the component mounts
+    if (errorMessage) {
+      setError(errorMessage);
+    }
+  }, []);
 
-  return (
-    <>
-      {error && (
-        <Alert className="ml-4 p-4" variant="destructive">
-          <div className="flex items-center">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-          </div>
-          <AlertDescription>{error}.</AlertDescription>
-        </Alert>
-      )}
-    </>
-  );
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        duration: 5000,
+        variant: "destructive",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
+    }
+  }, [error, toast]);
+
+  return null; // No need to render anything else
 };
 
 export default ErrorAlert;

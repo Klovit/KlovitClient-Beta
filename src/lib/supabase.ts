@@ -1,13 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
+import config from "@/config";
+import dotenv from 'dotenv';
 
-const configcont = fs.readFileSync('config.yml', 'utf8');
-const config = yaml.load(configcont);
-
+dotenv.config();
 export const supabase = createClient(
-  config.auth.supabase.supabase_url,
-  config.auth.supabase.supabase_anon_key,
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY,
   {
     auth: {
       flowType: "pkce",
