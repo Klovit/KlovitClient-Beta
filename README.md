@@ -2,7 +2,7 @@
 
 <hr>
 
-# KlovitClient V0.6.0
+# KlovitClient V0.7.0
 
 All features:
 - Resource Management (Use it to create servers, etc)
@@ -20,4 +20,4 @@ Join [KlovitClient's Official Discord Server](https://discord.gg/grrRKuyyyE) to 
 
 # [Documentation](https://docs.klovit.tech)
 # Notice
-All versions older than V0.5 are now depreciated, please update to KlovitClient V0.5.
+All versions older than V0.6 are now depreciated, please update to KlovitClient V0.6+.
