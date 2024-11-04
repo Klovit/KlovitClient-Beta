@@ -1,41 +1,41 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
 import db from '../../../database';
-import { Response } from "node-fetch";
-import config from '../../../config';
 import type { Provider } from "@supabase/supabase-js";
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const formData = await request.formData();
-  const username = formData.get("username")?.toString();
+  const rawusername = formData.get("username")?.toString();
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const provider = formData.get("provider")?.toString();
-const auth = []
-  if (config.auth.supabase.oauth2.google.enabled) {
-    auth.push(...[
-"google"
-     ])
-     }
-     
-     if (config.auth.supabase.oauth2.discord.enabled) {
-      auth.push(...[ 
-"discord"
-             ])
-        }
-        if (config.auth.supabase.oauth2.github.enabled) {
-          auth.push(...[ 
-    "github"
-                 ])
-            }
+  const config = await db.get("config")
+  
+  const discordScopes = ["identify", "email"];
+  if (config.blacklist.enabled) {
+    discordScopes.push("guilds");
+  }
+  if (config.auth.forcejoin.enabled) {
+    discordScopes.push("guilds.join");
+  }
 
-  const validProviders = auth;
-  if (provider && validProviders.includes(provider)) {
+  const validProviders: Provider[] = [];
+  if (config.auth.supabase.oauth2.google.enabled) validProviders.push("google");
+  if (config.auth.supabase.oauth2.discord.enabled) validProviders.push("discord");
+  if (config.auth.supabase.oauth2.github.enabled) validProviders.push("github");
+
+  if (provider && validProviders.includes(provider as Provider)) {
+    const options = {
+      redirectTo: `${config.website.url}/api/auth/callback`,
+    };
+    
+    if (provider === "discord") {
+      options["scopes"] = discordScopes.join(" ");
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
-      options: {
-        redirectTo: config.website.url + `/api/auth/callback`
-      },
+      options,
     });
 
 
@@ -61,10 +61,10 @@ const auth = []
     
   }
 
-  if (!username || !password) {
+  if (!rawusername || !password) {
     return redirect(`/register?error="Username and password are required."`);
   }
-  if (!username || !email) {
+  if (!rawusername || !email) {
     return redirect(`/register?error="Username and email is required."`);
   }
   if (!password || !email) {
@@ -76,11 +76,11 @@ const auth = []
   if (!password) {
     return redirect(`/register?error="Password is required"`);
   }
-  if (!username) {
+  if (!rawusername) {
     return redirect(`/register?error="Username is required."`);
   }
 
-const full_name = username
+const full_name = rawusername
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -95,7 +95,14 @@ const full_name = username
 
   if (error) {
     return redirect(`/register?error=${error.message}`);
-}
+  }
+  function sanitizeUsername(username: string): string {
+    return username.replace(/[^a-zA-Z0-9._-]/g, (char) => {
+      return char.charCodeAt(0).toString();
+    });
+  }
+
+      const username = sanitizeUsername(rawusername);
       let genpassword = null;
       genpassword = makeid(16);
       let accountjson = await fetch(

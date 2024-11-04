@@ -1,0 +1,8 @@
+---
+import Toast from "astro-toast";
+const error = Astro.url.searchParams.get("error")
+const success = Astro.url.searchParams.get("success")
+
+---
+    {error && <Toast variant="error" where="top-end">{error}</Toast>}
+    {success && <Toast variant="success" where="top-end">{success}</Toast>}

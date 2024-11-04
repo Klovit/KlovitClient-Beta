@@ -5,7 +5,7 @@ import chalk from "chalk";
 import db from '../../../../database';
 import { Response } from "node-fetch";
 import config from '../../../../config';
-import { ExpressRoute } from "@astro-utils/express-endpoints";
+import { ExpressRoute } from '../../../lib/endpoints';
 import doubleCsrfProtection from "../../../../middleware";
 import restype from "src/restype";
 

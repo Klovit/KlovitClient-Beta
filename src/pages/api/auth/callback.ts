@@ -13,12 +13,20 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   const { data: { user }, } = await supabase.auth.getUser()
   const metadata = user.user_metadata
   const email = data?.user?.email
-  const username = user.user_metadata.full_name
+  const rawusername = user.user_metadata.full_name
   const { access_token, refresh_token } = data.session;
-  // Creating a account on Pterodactyl Panel.
+
   let genpassword = null;
   genpassword = makeid(16);
+  function sanitizeUsername(username: string): string {
+    return username.replace(/[^a-zA-Z0-9._-]/g, (char) => {
+      return char.charCodeAt(0).toString();
+    });
+  }
+  
+  const username = sanitizeUsername(rawusername);
 
+  
   try {
     let accountlistjson2 = await fetch(
       config.pterodactyl.url + "/api/application/users?include=servers&filter[email]=" + encodeURIComponent(email),
@@ -113,5 +121,5 @@ return result;
     path: "/",
   });
 
-  return redirect("/dashboard");
+  return redirect("/");
 };

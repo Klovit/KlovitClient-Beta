@@ -2,7 +2,7 @@ import { APIRoute } from 'astro';
 import chalk from "chalk";
 import db from '../../../database';
 import { Response } from "node-fetch";
-import { ExpressRoute } from "@astro-utils/express-endpoints";
+import { ExpressRoute } from '../../../lib/endpoints';
 import doubleCsrfProtection from "../../../middleware";
 
 const router = new ExpressRoute();

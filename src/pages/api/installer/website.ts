@@ -2,7 +2,7 @@ import { APIRoute } from 'astro';
 import chalk from "chalk";
 import db from '../../../database';
 import { Response } from "node-fetch";
-import { ExpressRoute } from "@astro-utils/express-endpoints";
+import { ExpressRoute } from '../../../lib/endpoints';
 import doubleCsrfProtection from "../../../middleware";
 
 const router = new ExpressRoute();
@@ -47,6 +47,7 @@ function makeid(length) {
     let website_secret = null;
     website_secret = makeid(8);
 const blacklisted_users = []
+console.log(resource_type)
 const config_website = {
     "name": kcname,
     "resource_type": resource_type,

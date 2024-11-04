@@ -125,7 +125,13 @@ for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i+
 
 const serversused = pterodactyl.relationships.servers.data.length
 let srvs = pterodactyl.relationships.servers.data
-if (config.blacklisted.users.includes(email)) {
+if (config.blacklist.users.includes(email)) {
+  cookies.delete("sb-access-token", {
+    path: "/",
+  });
+  cookies.delete("sb-refresh-token", {
+    path: "/",
+  });
 return redirect("/signin?error=You're blacklisted from our hosting service.")
 }
 

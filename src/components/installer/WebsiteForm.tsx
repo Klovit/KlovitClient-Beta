@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectValue } from "@/components/ui/select"; // Select from ShadCN UI
 import { Checkbox } from "../ui/checkbox";
+
 // Define the form schema using Zod
 const formSchema = z.object({
   kcname: z.string().min(1, { message: "Website's name is required." }),
@@ -39,7 +40,7 @@ export function WebsiteForm({ inputstarttoken }: { inputstarttoken: string }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       kcname: "",
-      resource_type: "GB", // Default value
+      resource_type: "",
       website_url: "",
       website_description: "",
       website_logo: "",
@@ -54,10 +55,35 @@ export function WebsiteForm({ inputstarttoken }: { inputstarttoken: string }) {
       token: inputstarttoken,
     },
   });
-
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    
+    const formData = new FormData();
+  
+    for (const [key, value] of Object.entries(data)) {
+      formData.append(key, value);
+    }
+  
+    try {
+      const response = await fetch("/api/installer/website", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      console.log("Form submitted successfully!");
+      window.location.href = `/installer/packages?token=${inputstarttoken}&success=Successfully saved Website Settings`
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+  
+  
   return (
-    <Form {...form} method="POST" action="/api/installer/website" className="mr-2 border-2 border-gray-300 dark:border-gray-600 p-8 rounded-lg">
-      <form className="space-y-8 ">
+    <Form {...form} className="mr-2 border-2 border-gray-300 dark:border-gray-600 p-8 rounded-lg">
+      <form onSubmit={form.handleSubmit(onSubmit)} method="POST" action="/api/installer/website" className="space-y-8 ">
         <h1 className="text-center text-2xl font-bold">Step 1 - Website Settings</h1>
         <h2 className="text-center text-xl font-bold">General Settings</h2>
 
@@ -75,32 +101,27 @@ export function WebsiteForm({ inputstarttoken }: { inputstarttoken: string }) {
           )}
         />
 
-<FormField 
-  control={form.control}
-  name="resource_type"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Resource type</FormLabel>
-      <FormControl>
-        <Select
-          onValueChange={(value) => field.onChange(value)} // ensure onChange gets the value
-          value={field.value} // synchronize value with field
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Resource type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="GB">GB</SelectItem>
-            <SelectItem value="MB">MB</SelectItem>
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-
+        <FormField 
+          control={form.control}
+          name="resource_type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Resource type</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Resource type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GB">GB</SelectItem>
+                    <SelectItem value="MB">MB</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -218,62 +239,59 @@ export function WebsiteForm({ inputstarttoken }: { inputstarttoken: string }) {
           )}
         />
 
-<FormField
-  control={form.control}
-  name="google_oauth"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel className="flex items-center mb-1">
-        Google OAuth
-        <Checkbox
-          className="ml-1"
-          checked={field.value}
-          onCheckedChange={field.onChange}
+        <FormField
+          control={form.control}
+          name="google_oauth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center mb-1">
+                Google OAuth
+                <Checkbox
+                  className="ml-1"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormLabel>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
 
-<FormField
-  control={form.control}
-  name="github_oauth"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel className="flex items-center mb-1">
-        Github OAuth
-        <Checkbox
-          className="ml-1"
-          checked={field.value}
-          onCheckedChange={field.onChange}
+        <FormField
+          control={form.control}
+          name="github_oauth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center mb-1">
+                Github OAuth
+                <Checkbox
+                  className="ml-1"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormLabel>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
 
-<FormField
-  control={form.control}
-  name="discord_oauth"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel className="flex items-center mb-1">
-        Discord OAuth
-        <Checkbox
-          className="ml-1"
-          checked={field.value}
-          onCheckedChange={field.onChange}
+        <FormField
+          control={form.control}
+          name="discord_oauth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center mb-1">
+                Discord OAuth
+                <Checkbox
+                  className="ml-1"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormLabel>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-
-
 
         <input type="hidden" {...form.register("token")} value={inputstarttoken} />
 
@@ -282,5 +300,6 @@ export function WebsiteForm({ inputstarttoken }: { inputstarttoken: string }) {
         </Button>
       </form>
     </Form>
+    
   );
 }
