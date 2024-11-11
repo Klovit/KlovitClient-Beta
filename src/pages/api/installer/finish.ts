@@ -45,7 +45,8 @@ const config_nodesandeggs = {
     "1": {
       name: "Default Location 1",
       package: null,
-    },
+      image: "https://i.imgur.com/zqGM5VI.png"
+    }
   },
   eggs: {
     klovitegg: {

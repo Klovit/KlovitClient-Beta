@@ -5,10 +5,10 @@ import {
     NavigationMenuTrigger,
     NavigationMenuContent,
     NavigationMenuLink,
-  } from '@radix-ui/react-navigation-menu';
-  import { ModeToggle } from "@/components/user/ModeToggle";
+  } from '@radix-ui/react-navigation-menu'; // Ensure correct import from Radix UI
+  import { ModeToggle } from "@/components/user/ModeToggle"; // Adjust the path for your ModeToggle component
   
-  export default function Topbar() {
+  export default function Nav() {
     return (
       <header className="flex justify-between items-center p-4">
         {/* Logo on the left */}

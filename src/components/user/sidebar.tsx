@@ -33,7 +33,7 @@ export default function Sidebar({ children, coinsenabled, storeenabled, earninge
       
       <main className="w-max h-2">
         
-        <header className="flex items-center justify-between mr-8 mt-2">
+        <header className="flex items-center sticky justify-between mr-8 mt-2">
         <SidebarTrigger />
         <ModeToggle />
       </header>
