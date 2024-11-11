@@ -3,10 +3,10 @@ import { supabase } from "../../lib/supabase";
 import chalk from "chalk";
 import db from '../../database';
 import { Response } from "node-fetch";
-import config from '../../config';
-import { ExpressRoute } from '../../../lib/endpoints';
+import { ExpressRoute } from '../../lib/endpoints';
 import doubleCsrfProtection from "../../middleware";
 import restype from "src/restype";
+const config = await db.get("config")
 
 const router = new ExpressRoute();
 router.use(doubleCsrfProtection)

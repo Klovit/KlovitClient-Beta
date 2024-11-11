@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
-import config from '../../../config';
 import db from '../../../database';
+const config = await db.get("config")
 export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   const authCode = url.searchParams.get("code");
 
@@ -12,6 +12,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
   const { data: { user }, } = await supabase.auth.getUser()
   const metadata = user.user_metadata
+  console.log(metadata)
   const email = data?.user?.email
   const rawusername = user.user_metadata.full_name
   const { access_token, refresh_token } = data.session;
@@ -81,6 +82,10 @@ console.log(err)
         info = {
           package: config.packages.default,
           balance: 0,
+          permission: 1,
+          invoices: {},
+          tickets: {},
+          servers: {},
           password: genpassword,
           extraresources: {
             ram: 0,

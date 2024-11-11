@@ -74,6 +74,8 @@ try {
   const newinfo = {
     package: packagee,
     balance: currentinfo.balance,
+    permission: currentinfo.permssion,
+    invoices: currentinfo.invoices,
     password: currentinfo.password,
     extraresources: {
       ram: currentinfo.extraresources.ram,

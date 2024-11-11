@@ -56,6 +56,10 @@ if (amount || typeof amount === 'number') {
     const newinfo = {
       package: currentinfo.package,
       balance: newbal,
+      permission: currentinfo.permssion,
+      invoices: currentinfo.invoices,
+      tickets: currentinfo.tickets,
+      servers: currentinfo.servers,
       password: currentinfo.password,
       extraresources: {
         ram: currentinfo.ram,

@@ -65,36 +65,7 @@ console.log(setRestype)
         />
       </div>
 
-      <h2 className="text-center text-xl font-bold">Payment Settings</h2>
-
-      <div className="w-full grid grid-cols-2 mb-1">
-        <label className="ml-1">Enable Payment Settings:</label>
-        <Checkbox name="payments" />
-      </div>
-
-      <div className="w-full grid grid-cols-2 mb-1">
-        <label className="ml-1">Currency Short Code:</label>
-        <Input
-          name="currency_code"
-          maxLength={3}
-          placeholder="USD"
-        />
-      </div>
-
-      <div className="w-full grid grid-cols-2 mb-1">
-        <label className="ml-1">Enable PayPal integration:</label>
-        <Checkbox name="paypal_integration" />
-      </div>
-
-      <div className="w-full grid grid-cols-2 mb-1">
-        <label className="ml-1">PayPal Email:</label>
-        <Input
-          name="paypal_email"
-          placeholder="email@example.com"
-        />
-      </div>
-
-      <Button type="submit" className="mt-2">
+      <Button variant="outline" type="submit" className="mt-2">
         Next
       </Button>
     </form>

@@ -101,6 +101,10 @@ if((await result).status === 200) {
   const newinfo = {
     package: currentinfo.package,
     balance: currentinfo.balance,
+    permission: 1,
+    invoices: {},
+    tickets: currentinfo.tickets,
+    servers: currentinfo.servers,
     password: newpass,
     extraresources: {
       ram: currentinfo.ram,

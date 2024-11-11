@@ -1,5 +1,6 @@
 import { doubleCsrf } from "csrf-csrf";
-import config from "./config";
+import db from "@/database";
+const config = await db.get("config")
 
 const {
     doubleCsrfProtection,

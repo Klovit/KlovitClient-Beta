@@ -26,12 +26,10 @@ const { data, error } = await supabase.auth.setSession({
   access_token: accessToken.value,
 });
 if (error) {
-  cookies.delete("sb-access-token", {
-    path: "/",
-  });
-  cookies.delete("sb-refresh-token", {
-    path: "/",
-  });
+  cookies.delete("sb-access-token", { path: "/" });
+  cookies.delete("sb-refresh-token", { path: "/" });
+  return redirect("/auth/signin");
+}
 
   return redirect("/signin");
 }

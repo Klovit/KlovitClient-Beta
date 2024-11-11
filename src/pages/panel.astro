@@ -1,5 +1,6 @@
 ---
-import config from "../config"
+import db from "@/database"
+const config = await db.get("config")
 
 const panel = config.pterodactyl.url ?? "/404"
 

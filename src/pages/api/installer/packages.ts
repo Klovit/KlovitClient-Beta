@@ -15,10 +15,6 @@ const ram = formData.get("ram")?.toString()
 const cpu = formData.get("cpu")?.toString()
 const storage = formData.get("storage")?.toString()
 const slots = formData.get("slots")?.toString()
-const payments = formData.get("payments")?.toString() ?? false
-const paypal_integration = formData.get("paypal_integration")?.toString() ?? false
-const paypal_email = formData.get("paypal_email")?.toString()
-const currency_code = formData.get("currency_code")?.toString()
 
 
 if (await db.get("installed") === true) {
@@ -46,16 +42,6 @@ const config_packages = {
           }
         }
       },
-      "payments": {
-        "enabled": payments,
-        "currency": currency_code,
-        "gateways": {
-          "paypal": {
-            "enabled": paypal_integration,
-            "email": paypal_email,
-          }
-        }
-      }
 }
 await db.set("config_packages",config_packages)
 

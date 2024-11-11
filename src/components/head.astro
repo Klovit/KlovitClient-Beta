@@ -1,10 +1,8 @@
 ---
-import config from '../config';
 import '../styles/globals.css'
-
-
 import db from '../database';
 import dotenv from 'dotenv';
+const config = await db.get("config")
 
 dotenv.config();
 const { cookies, redirect } = Astro;
@@ -19,25 +17,23 @@ const yearWithTitle = `${year} ${config.name}`
   
 let PAGE;
 const pagepath = Astro.url.pathname
-if (pagepath === "/dashboard") {
-    PAGE = "Dashboard"
+
+if (pagepath === "/server/deploy") {
+    PAGE = "Deploy"
 }
-if (pagepath === "/create") {
-    PAGE = "Create"
-}
-if (pagepath === "/edit") {
+if (pagepath === "/server/edit") {
     PAGE = "Edit"
 }
 if (pagepath === "/store") {
     PAGE = "Store"
 }
-if (pagepath === "/economy") {
+if (pagepath === "/user/economy") {
     PAGE = "Economy"
 }
-if (pagepath === "/account") {
+if (pagepath === "/user/account") {
     PAGE = "Account"
 }
-if (pagepath === "/gift") {
+if (pagepath === "/user/gift") {
     PAGE = "Gift"
 }
 if (pagepath === "/buy") {
@@ -58,10 +54,10 @@ if (pagepath === "/admin/packages") {
 if (pagepath === "/") {
     PAGE = "Home"
 }
-if (pagepath === "/signin") {
+if (pagepath === "/auth/signin") {
     PAGE = "Login"
 }
-if (pagepath === "/register") {
+if (pagepath === "/auth/register") {
     PAGE = "Register"
 }
 if (pagepath === "/delete") {

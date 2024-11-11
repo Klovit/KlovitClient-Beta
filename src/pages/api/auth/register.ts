@@ -5,6 +5,8 @@ import type { Provider } from "@supabase/supabase-js";
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const formData = await request.formData();
+  const first_name = formData.get("firstname")?.toString();
+  const last_name = formData.get("lastname")?.toString();
   const rawusername = formData.get("username")?.toString();
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -61,14 +63,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     
   }
 
-  if (!rawusername || !password) {
+  if (!rawusername && !password) {
     return redirect(`/register?error="Username and password are required."`);
   }
-  if (!rawusername || !email) {
+  if (!rawusername && !email) {
     return redirect(`/register?error="Username and email is required."`);
   }
-  if (!password || !email) {
+  if (!password && !email) {
     return redirect(`/register?error="Password and email is required."`);
+  }
+  if (!first_name) {
+    return redirect(`/register?error="First Name is required."`);
+  }
+  if (!last_name) {
+    return redirect(`/register?error="Last Name is required."`);
   }
   if (!email) {
     return redirect(`/register?error="Email is required"`);
@@ -80,13 +88,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect(`/register?error="Username is required."`);
   }
 
-const full_name = rawusername
+const full_name = `${first_name} ${last_name}`
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
+        first_name: first_name,
+        last_name: last_name,
         full_name: full_name,
         avatar: "https://i.imgur.com/zqGM5VI.png"
       },
@@ -103,8 +113,6 @@ const full_name = rawusername
   }
 
       const username = sanitizeUsername(rawusername);
-      let genpassword = null;
-      genpassword = makeid(16);
       let accountjson = await fetch(
         config.pterodactyl.url + "/api/application/users",
         {
@@ -116,9 +124,9 @@ const full_name = rawusername
           body: JSON.stringify({
             username: username,
             email: email,
-            first_name: username,
-            last_name: username,
-            password: genpassword
+            first_name: first_name,
+            last_name: last_name,
+            password: password
           })
         }
       );
@@ -141,7 +149,11 @@ const full_name = rawusername
             info = {
               package: config.packages.default,
               balance: 0,
-              password: genpassword,
+              permission: 1,
+              invoices: {},
+              tickets: {},
+              servers: {},
+              password: password,
               extraresources: {
                 ram: 0,
                 disk: 0,

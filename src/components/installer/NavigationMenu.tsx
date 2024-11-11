@@ -6,7 +6,7 @@ import {
     NavigationMenuContent,
     NavigationMenuLink,
   } from '@radix-ui/react-navigation-menu'; // Ensure correct import from Radix UI
-  import { ModeToggle } from "@/components/ModeToggle"; // Adjust the path for your ModeToggle component
+  import { ModeToggle } from "@/components/user/ModeToggle"; // Adjust the path for your ModeToggle component
   
   export default function NavigationMenuComponent() {
     return (

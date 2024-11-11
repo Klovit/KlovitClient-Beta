@@ -46,6 +46,25 @@ function makeid(length) {
     }
     let website_secret = null;
     website_secret = makeid(8);
+let google_oauthenabled;
+let discord_oauthenabled;
+let github_oauthenabled;
+if (google_oauth === "on") {
+  google_oauthenabled = true
+} else {
+  google_oauthenabled = false
+}
+if (discord_oauth === "on") {
+  discord_oauthenabled = true
+} else {
+  discord_oauthenabled = false
+}
+if (github_oauth === "on") {
+  github_oauthenabled = true
+} else {
+  github_oauthenabled = false
+}
+
 const blacklisted_users = []
 console.log(resource_type)
 const config_website = {
@@ -62,8 +81,13 @@ const config_website = {
     "api": pterodactyl_api,
     "client_api": pterodactyl_client_api
   },
-  "blacklisted": {
-    "users": blacklisted_users
+  "blacklist": {
+    "enabled": false,
+    "users": blacklisted_users,
+    "discord": {
+      "enabled": false,
+      "servers": []
+    }
   },
   "auth": {
     "supabase": {
@@ -71,13 +95,27 @@ const config_website = {
       "supabase_anon_key": supabase_key,
       "oauth2": {
         "google": {
-          "enabled": google_oauth
+          "enabled": google_oauthenabled
         },
         "github": {
-          "enabled": github_oauth
+          "enabled": github_oauthenabled
         },
         "discord": {
-          "enabled": discord_oauth
+          "enabled": discord_oauthenabled,
+          "bot": {
+            "enabled": false,
+            "token" : "Discord Bot Token here",
+            "force_join": {
+              "enabled": false,
+              "servers": ["server1", "server2"]
+            },
+            "role_packages": {
+              "enabled": false,
+              "list": {
+                "role_id": "package"
+              }
+            }
+          }
         }
       }
     }

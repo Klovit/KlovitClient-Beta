@@ -1,123 +1,260 @@
 ---
-import config from '../config';
-import '../styles/globals.css'
-
-
+import '../styles/globals.css';
 import { supabase } from "../lib/supabase";
 import db from '../database';
-import Nav from "../components/nav.astro";
-import Header from "../components/head.astro"
-import Resources from '../components/resources.astro';
-import Servers from '../components/servers.astro'
-import Mobnav from "../components/mobnav.astro";
+import SidebarLayout from "../components/user/sidebar";
+import Topbar from "@/components/user/topbar";
+import Header from "../components/head.astro";
 import Footer from 'src/components/footer.astro';
-const { cookies, redirect } = Astro;
+import Toast from '@/components/Toast.astro';
+import restype from "../restype"
+import { Button } from '@/components/ui/button';
 
+const config = await db.get("config");
+const { cookies, redirect } = Astro;
+const installed = await db.get("installed")
+if (!installed) {
+  return redirect("/installer/start")
+}
+
+
+// Authenticate
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
   return redirect("/signin");
 }
-const refresh_token = refreshToken.value
-const access_token = accessToken.value
+const refresh_token = refreshToken.value;
+const access_token = accessToken.value;
 const { data, error } = await supabase.auth.setSession({
   refresh_token: refresh_token,
   access_token: access_token,
 });
 
 if (error) {
+  cookies.delete("sb-access-token", { path: "/" });
+  cookies.delete("sb-refresh-token", { path: "/" });
+  return redirect("/auth/signin");
+}
+
+// Fetch Info
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+const metadata = user.user_metadata;
+const username = metadata.full_name;
+const email = data?.user?.email;
+const avatar = metadata.avatar_url;
+
+let accountlistjson = await fetch(
+  `${config.pterodactyl.url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`,
+  {
+    method: "get",
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${config.pterodactyl.api}`,
+    },
+  }
+);
+let accountlist = await accountlistjson.json();
+let userdata = accountlist.data.filter(acc => acc.attributes.email == email);
+
+let cacheaccount = await fetch(
+  `${config.pterodactyl.url}/api/application/users/${userdata[0].attributes.id}?include=servers`,
+  {
+    method: "get",
+    headers: { 'Content-Type': 'application/json', "Authorization": `Bearer ${config.pterodactyl.api}` },
+  }
+);
+if (await cacheaccount.statusText == "Not Found") {
+  return redirect(`/api/auth/signout`);
+}
+let cacheaccountinfo = JSON.parse(await cacheaccount.text());
+const pterodactyl = cacheaccountinfo.attributes;
+const info = await db.get("user-" + email);
+// Fetch resources
+const resconf = restype.restype
+// Package Limits
+const pkgram = config.packages.list[info.package].ram
+const pkgdisk = config.packages.list[info.package].disk
+const pkgserverslimit = config.packages.list[info.package].servers
+// Actual Limits
+let extra;
+  extra = ('extraresources' in info && 
+    'ram' in info.extraresources &&
+    'disk' in info.extraresources &&
+    'cpu' in info.extraresources &&
+    'servers' in info.extraresources) 
+  ? info.extraresources 
+  : { ram: 0, disk: 0, cpu: 0, servers: 0 };
+
+let ccore;
+ccore = +config.packages.list[info.package].cpu + +extra.cpu
+ccore += config.resource_type === 'MB' ? '%' : ' Core(s)'
+const ramlimit = +pkgram + +extra.ram
+const disklimit = +pkgdisk + +extra.disk
+const serverslimit = +pkgserverslimit + +extra.servers
+// Used resources
+let ramused = 0;
+let diskused = 0;
+let cpuused = 0;
+if (config.resource_type ==="GB") {
+for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = +ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0)/1024;
+    diskused = +diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0)/1024;
+    cpuused = +cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0)/100;
+}
+} else {
+    for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = +ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0);
+    diskused = +diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0);
+    cpuused = +cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0);
+}
+}
+
+// Servers
+const serversused = pterodactyl.relationships.servers.data.length
+let srvs = pterodactyl.relationships.servers.data
+let servers = pterodactyl.relationships.servers.data[0]
+let serverram;
+let serverdisk;
+let servercpu;
+if (config.resource_type === "GB"){
+    serverram = "%serverram% GB(s)"
+    serverdisk = "%serverdisk% GB(s)"
+    servercpu = "%servercpu% Core(s)"
+} else {
+    serverram = "%serverram% MB(s)"
+    serverdisk = "%serverdisk% MB(s)"
+    servercpu = "%servercpu%%"
+    }
+
+    if (config.resource_type ==="GB") {
+for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0)/1024;
+    diskused = diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0)/1024;
+    cpuused = cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0)/100;
+}
+} else {
+    for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0);
+    diskused = diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0);
+    cpuused = cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0);
+}
+}
+// Blacklist
+if (config.blacklist.users.includes(email)) {
   cookies.delete("sb-access-token", {
     path: "/",
   });
   cookies.delete("sb-refresh-token", {
     path: "/",
   });
-
-  return redirect("/signin");
+return redirect("/signin?error=You're blacklisted from our hosting service.")
 }
-
-
-const errorstate = Astro.url.searchParams.get('error')! || '';
-const errormsg = Astro.url.searchParams.get('error')! || '';
-const success = Astro.url.searchParams.get('success')! || '';
-const successmsg = Astro.url.searchParams.get('success')! || '';
-
-const {
-  data: { user },
-} = await supabase.auth.getUser()
-
-const metadata = user.user_metadata
-const username = metadata.full_name
-const email = data?.user?.email
-const avatar = metadata.avatar_url
-
-let accountlistjson = await fetch(
-    config.pterodactyl.url + "/api/application/users?include=servers&filter[email]=" + encodeURIComponent(email),
-    {
-        method: "get",
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${config.pterodactyl.api}`
-        }
-    }
-);
-              let accountlist = await accountlistjson.json();
-              let userdata = accountlist.data.filter(acc => acc.attributes.email == email);
-let cacheaccount = await fetch(
-config.pterodactyl.url + "/api/application/users/" + userdata[0].attributes.id + "?include=servers",
- {
-    method: "get",
-    headers: { 'Content-Type': 'application/json', "Authorization": `Bearer ${config.pterodactyl.api}` }
-  }
-);
-if (await cacheaccount.statusText == "Not Found") {
-    return redirect(`/api/auth/signout`)
-};
-let cacheaccountinfo = JSON.parse(await cacheaccount.text());
-const pterodactyl = cacheaccountinfo.attributes;
-
-
-const info = await db.get("user-" + email)
+const sidebarstate = cookies.get("sidebar:state")
+const storeenabled = config.coins.store.enabled
+const coinsenabled = config.coins.enabled
+const earningenabled = config.coins.earn.enabled
 ---
 <!DOCTYPE html>
+<script is:inline>
+	const getThemePreference = () => {
+		if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+			return localStorage.getItem('theme');
+		}
+		return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	};
+	const isDark = getThemePreference() === 'dark';
+	document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
+ 
+	if (typeof localStorage !== 'undefined') {
+		const observer = new MutationObserver(() => {
+			const isDark = document.documentElement.classList.contains('dark');
+			localStorage.setItem('theme', isDark ? 'dark' : 'light');
+		});
+		observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+	}
+</script>
 <html>
     <Header />
- 
-<body class="bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black h-full min-h-screen relative">
-    <div class="hidden md:block animation-blob w-screen">
+    <body class="overflow-x-hidden h-screen min-h-screen relative">
+      <div class="animation-blob h-screen">
         <div class="antialiased">
-            <main class="bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black h-screen">
-                    <Nav />
-                    {errorstate && <div style="border-radius: 15px; color: white; height: 50px; text-align: center; font-size: large;" style="border-radius: 15px;" class="rounded-xl mb-2 bg-red-700 alert mr-3 ml-3 mt-8">ERROR: {errormsg}</div>}
-                    {success && <div style="border-radius: 15px; color: white; height: 50px; text-align: center; font-size: large;" style="border-radius: 15px;" class="rounded-xl mb-1 bg-green-700 alert mr-3 ml-3 mt-8">Success: {success}</div>}
-<Resources /><br><br>
-<section>
-    <span class="text-black dark:text-white ml-4">Your Servers</span>
-    <div class="grid grid-cols-4 ml-2"><Servers /></div>
-
-</section>
-<Footer />
-                </div>
-            </main>
+          <main class="h-screen grid grid-cols-1 grid-rows-2">
+            <SidebarLayout storeenabled={storeenabled} coinsenabled={coinsenabled} earningenabled={earningenabled} client:load>
+              <Toast />
+              <section class="max-h-screen">
+                <div class="ml-2">
+                  <div class="relative shadow-lg rounded-lg w-full">
+                    <section class="overflow-x-hidden">
+                      <span class="ml-4 text-xl">Resources</span>
+                      <div class="gap-2 w-screen rounded-xl h-fit flex items-center justify-center">
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">RAM {resconf}</h1>
+                              <h1 class="text-md md:text-3xl text-center">{ramused} / {ramlimit}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">Disk {resconf}</h1>
+                              <h1 class="text-md md:text-3xl text-center">{diskused} / {disklimit}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">CPU</h1>
+                              <h1 class="text-md md:text-3xl text-center">{cpuused} / {ccore}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                            <h1 class="text-sm md:text-lg text-center">Servers</h1>
+                            <h1 class="text-md md:text-3xl text-center">{serversused} / {serverslimit} Slots</h1>
+                          </div>
+                      </div>
+                    </section>
+                    <section class="md:ml-4 overflow-y-auto h-fit">
+                      <h1 class="text-xl font-semibold">Servers</h1>
+                    <div class="h-[23rem] md:h-[20rem] grid lg:grid-cols-2 gap-1 w-screen overflow-auto pr-4">
+                    {servers ?
+                      srvs.map((serverData, i) => <div class="mb-4 h-fit w-full shrink-0 rounded-lg mr-6" role="group" aria-label=`${i} + 1 / {pterodactyl.relationships.servers.data.length}`>
+                                          <div class="w-full p-4 border rounded-xl">
+                                            <h1 class="text-lg">{serverData.attributes.name.length > 40 ? serverData.attributes.name.slice(0, 40) + "..." : serverData.attributes.name}</h1>
+                                              <div class="mt-2 grid lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                                                  <div class="p-3 border rounded-lg">
+                                                      <div class="text-sm mb-1">CPU</div>
+                                                      <div class="font-semibold">{servercpu.includes("Core") ? servercpu.replace("%servercpu%", serverData.attributes.limits.cpu/100) : servercpu.replace("%servercpu%", serverData.attributes.limits.cpu)}</div>
+                                                  </div>
+                                                  <div class="p-3 border rounded-lg">
+                                                      <div class="text-sm mb-1">MEMORY</div>
+                                                      <div class="font-semibold">{serverram.includes("GB") ? serverram.replace("%serverram%", serverData.attributes.limits.memory/1024) : serverram.replace("%serverram%", serverData.attributes.limits.memory)}</div>
+                                                  </div>
+                                                  <div class="p-3 border rounded-lg">
+                                                      <div class="text-sm mb-1">DISK</div>
+                                                      <div class="font-semibold">{serverdisk.includes("GB") ? serverdisk.replace("%serverdisk%", serverData.attributes.limits.disk/1024) : serverdisk.replace("%serverdisk%", serverData.attributes.limits.disk)}</div>
+                                                  </div>
+                                                </div>
+                                                <div>
+                                                  <div class="mt-2">
+                                                    <Button variant='default'>Edit</Button> <Button variant='destructive'>Delete</Button>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                      </div>)    
+                       : <div class="grid grid-cols-1">
+                        <div>
+                          <p class="text-black dark:text-white"> You don't have a server yet, create one here.</p><br>
+                          </div>
+                        <div>
+                         <button onclick="location.href='/create'" class="shadow shadow-black relative rounded-lg text-black dark:text-white bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black px-5 py-1">Create</button>
+                  </div>
+                </div>    }
+              </div>
+              </section>
+            </div>
+          </div>
+        </section>
+              
+              <Footer />
+            </SidebarLayout>
+          </main>
         </div>
-    </div>
-    <div class="md:hidden w-screen overflow-x-hidden animation-blob h-screen">
-        <div class="antialiased">
-            <main class="bg-gradient-to-r from-teal-300 via-blue-400 to-purple-300 dark:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] dark:from-zinc-700 dark:via-zinc-900 dark:to-black h-screen">
-<Mobnav />
-                    {errorstate && <div style="border-radius: 15px; color: white; height: 50px; text-align: center; font-size: large;" style="border-radius: 15px;" class="rounded-xl mb-2 bg-red-700 alert mr-3 ml-3 mt-8">ERROR: {errormsg}</div>}
-                    {success && <div style="border-radius: 15px; color: white; height: 50px; text-align: center; font-size: large;" style="border-radius: 15px;" class="rounded-xl mb-1 bg-green-700 alert mr-3 ml-3 mt-8">Success: {success}</div>}
-<Resources /><br><br>
-<section>
-    <span class="text-black dark:text-white ml-4">Your Servers</span>
-    <div class="grid grid-cols-4 ml-6"><Servers /></div>
-
-</section>
-<Footer />
-                </div>
-            </main>
-        </div>
-    </div>
-</body>
-
+      </div>
+    </body>
 </html>

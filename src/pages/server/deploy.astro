@@ -1,0 +1,195 @@
+---
+import '../../styles/globals.css';
+import { supabase } from "@/lib/supabase";
+import db from '@/database';
+import SidebarLayout from "@/components/user/sidebar";
+import Topbar from "@/components/user/topbar";
+import Header from "@/components/head.astro";
+import Footer from 'src/components/footer.astro';
+import Toast from '@/components/Toast.astro';
+import restype from "@/restype"
+import { Button } from '@/components/ui/button';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select"
+import DeployServerForm from '@/components/user/Server/DeployServerForm';
+
+const config = await db.get("config")
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+if (!accessToken || !refreshToken) {
+  return redirect("/signin");
+}
+const refresh_token = refreshToken.value
+const access_token = accessToken.value
+const { data, error } = await supabase.auth.setSession({
+  refresh_token: refresh_token,
+  access_token: access_token,
+});
+
+if (error) {
+  cookies.delete("sb-access-token", { path: "/" });
+  cookies.delete("sb-refresh-token", { path: "/" });
+  return redirect("/auth/signin");
+}
+
+  return redirect("/signin");
+}
+
+
+const errorstate = Astro.url.searchParams.get('error')! || '';
+const errormsg = Astro.url.searchParams.get('error')! || '';
+const success = Astro.url.searchParams.get('success')! || '';
+const successmsg = Astro.url.searchParams.get('success')! || '';
+
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+
+const metadata = user.user_metadata
+const username = metadata.full_name
+const email = data?.user?.email
+const avatar = metadata.avatar_url
+
+let accountlistjson = await fetch(
+    config.pterodactyl.url + "/api/application/users?include=servers&filter[email]=" + encodeURIComponent(email),
+    {
+        method: "get",
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${config.pterodactyl.api}`
+        }
+    }
+);
+              let accountlist = await accountlistjson.json();
+              let userdata = accountlist.data.filter(acc => acc.attributes.email == email);
+let cacheaccount = await fetch(
+config.pterodactyl.url + "/api/application/users/" + userdata[0].attributes.id + "?include=servers",
+ {
+    method: "get",
+    headers: { 'Content-Type': 'application/json', "Authorization": `Bearer ${config.pterodactyl.api}` }
+  }
+);
+if (await cacheaccount.statusText == "Not Found") {
+  if (error) {
+    console.log(chalk.red(`[KlovitClient] An error has occured on path ${Astro.url.pathname}:`));
+  };
+};
+let cacheaccountinfo = JSON.parse(await cacheaccount.text());
+    
+const pterodactyl = cacheaccountinfo.attributes;
+const adminstatus = pterodactyl.root_admin
+const servers = pterodactyl.relationships.servers.data[0]
+
+const year = new Date().getFullYear().toString()
+const yearWithTitle = `${year} ${config.name}`
+
+// RESOURCES
+const info = await db.get("user-" + email)
+const pkglist = config.packages.list.pkg
+const pkg = info.package
+const resconf = restype.restype
+// Package Limits
+const pkgram = config.packages.list[info.package].ram
+const pkgdisk = config.packages.list[info.package].disk
+const pkgserverslimit = config.packages.list[info.package].servers
+// Actual Limits
+let extra;
+  extra = ('extraresources' in info && 
+    'ram' in info.extraresources &&
+    'disk' in info.extraresources &&
+    'cpu' in info.extraresources &&
+    'servers' in info.extraresources) 
+  ? info.extraresources 
+  : { ram: 0, disk: 0, cpu: 0, servers: 0 };
+
+let ccore;
+ccore = +config.packages.list[info.package].cpu + +extra.cpu
+ccore += config.resource_type === 'MB' ? '%' : ' Core(s)'
+const ramlimit = +pkgram + +extra.ram
+const disklimit = +pkgdisk + +extra.disk
+const serverslimit = +pkgserverslimit + +extra.servers
+// Used resources
+let ramused = 0;
+let diskused = 0;
+let cpuused = 0;
+if (config.resource_type ==="GB") {
+for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = +ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0)/1024;
+    diskused = +diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0)/1024;
+    cpuused = +cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0)/100;
+}
+} else {
+    for (let i = 0, len = pterodactyl.relationships.servers.data.length; i < len; i++) {
+    ramused = +ramused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.memory == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.memory : 0);
+    diskused = +diskused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.disk == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.disk : 0);
+    cpuused = +cpuused + (typeof pterodactyl.relationships.servers.data[i].attributes.limits.cpu == "number" ? pterodactyl.relationships.servers.data[i].attributes.limits.cpu : 0);
+}
+}
+
+// Servers
+const serversused = pterodactyl.relationships.servers.data.length
+
+const storeenabled = config.coins.store.enabled
+const coinsenabled = config.coins.enabled
+const earningenabled = config.coins.earn.enabled
+---
+<!DOCTYPE html>
+<html>
+    <Header />
+     
+<body class="h-full min-h-screen relative">
+    <div class="hidden md:block animation-blob w-screen">
+        <div class="antialiased">
+          <main class="h-screen grid grid-cols-1 grid-rows-2">
+            <SidebarLayout storeenabled={storeenabled} coinsenabled={coinsenabled} earningenabled={earningenabled} client:load>
+              <Toast />
+              <section class="max-h-screen">
+                <div class="ml-2">
+                  <div class="relative rounded-lg w-full">
+                    <section class="overflow-x-hidden">
+                      <span class="ml-4 text-xl">Resources</span>
+                      <div class="gap-2 w-screen rounded-xl h-fit flex items-center justify-center">
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">RAM {resconf}</h1>
+                              <h1 class="text-md md:text-3xl text-center">{ramused} / {ramlimit}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">Disk {resconf}</h1>
+                              <h1 class="text-md md:text-3xl text-center">{diskused} / {disklimit}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                              <h1 class="text-sm md:text-lg text-center">CPU</h1>
+                              <h1 class="text-md md:text-3xl text-center">{cpuused} / {ccore}</h1>
+                          </div>
+                          <div class="border h-28 w-60 rounded-xl p-2 text-center">
+                            <h1 class="text-sm md:text-lg text-center">Servers</h1>
+                            <h1 class="text-md md:text-3xl text-center">{serversused} / {serverslimit} Slots</h1>
+                          </div>
+                      </div>
+                    </section>
+                    <section class="w-full">
+                      <DeployServerForm client:load eggs={config.eggs} />
+                  </section>
+            </div>
+          </div>
+        </section>
+              
+              <Footer />
+            </SidebarLayout>
+          </main>
+        </div>
+    </div>
+</body>
+
+</html>

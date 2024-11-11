@@ -97,6 +97,10 @@ if (receiver && giftcoins && giftram && giftdisk && giftcpu && giftslots) {
     const newsenderinfo = {
         package: currentsenderinfo.package,
         balance: newsenderbalance,
+        permission: currentsenderinfo.permssion,
+        invoices: currentsenderinfo.invoices,
+        tickets: currentsenderinfo.tickets,
+        servers: currentsenderinfo.servers,
         password: currentsenderinfo.password,
         extraresources: {
           ram: newsenderram,
@@ -115,6 +119,10 @@ if (receiver && giftcoins && giftram && giftdisk && giftcpu && giftslots) {
         package: currentreceiverinfo.package,
         balance: newreceiverbalance,
         password: currentreceiverinfo.password,
+        permission: currentreceiverinfo.permssion,
+        invoices: currentreceiverinfo.invoices,
+        tickets: currentreceiverinfo.tickets,
+        servers: currentreceiverinfo.servers,
         extraresources: {
           ram: newreceiverram,
           disk: newreceiverdisk,

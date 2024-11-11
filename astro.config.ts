@@ -4,7 +4,6 @@ import sitemap from '@astrojs/sitemap';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import node from '@astrojs/node';
-import config from "./src/config";
 import dotenv from 'dotenv';
 
 import react from '@astrojs/react';

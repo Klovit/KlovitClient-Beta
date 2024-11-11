@@ -8,12 +8,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const password = formData.get("password")?.toString();
   const provider = formData.get("provider")?.toString();
   const config = await db.get("config")
-  
+  console.log(config.blacklist)
+
   const discordScopes = ["identify", "email"];
   if (config.blacklist.enabled) {
     discordScopes.push("guilds");
   }
-  if (config.auth.forcejoin.enabled) {
+  console.log(config.blacklist)
+  if (config.auth.supabase.oauth2.discord.bot.force_join.enabled) {
     discordScopes.push("guilds.join");
   }
 

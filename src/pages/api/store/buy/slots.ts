@@ -67,6 +67,10 @@ try {
   const newinfo = {
     package: currentinfo.package,
     balance: newbalance,
+    permission: currentinfo.permssion,
+    invoices: currentinfo.invoices,
+    tickets: currentinfo.tickets,
+    servers: currentinfo.servers,
     password: currentinfo.password,
     extraresources: newextra
   } 

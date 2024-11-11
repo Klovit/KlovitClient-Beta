@@ -1,10 +1,11 @@
 ---
-import config from '../config';
+import db from '@/database';
 import '../styles/globals.css'
+const config = await db.get("config")
 
 
 
-const website = config.website ?? {};
+const website = config?.website ?? {};
 const icon = website.icon ?? "https://docs.klovit.tech/img/Klovit%20Logo.png"
 const description = website.description ?? "KlovitClient"
 const hostname = website.name ?? "KlovitClient"

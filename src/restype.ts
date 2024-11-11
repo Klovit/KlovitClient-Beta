@@ -1,11 +1,10 @@
-import config from './config';
+import db from './database';
+const config = await db.get("config")
 
 let restype;
 
-if (config.resource_type === 'MB' || config.resource_type === 'GB') {
+if (config?.resource_type === 'MB' || config?.resource_type === 'GB') {
     restype = `${config.resource_type}(s)`
-} else {
-  console.error('Unsupported Resource type');
 }
 
 
