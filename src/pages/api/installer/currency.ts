@@ -22,7 +22,6 @@ const pcoinsprice = formData.get("pcoinsprice")?.toString()
 const pcoins = formData.get("pcoinsenabled")?.toString()
 const payments = formData.get("payments")
 const currency_code = formData.get("currency_code")
-console.log(formData)
 
 if (await db.get("installed") === true) {
     return redirect(`/?error=KlovitClient is already installed.`)

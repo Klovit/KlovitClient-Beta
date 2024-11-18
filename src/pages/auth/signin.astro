@@ -39,7 +39,7 @@ const year = new Date().getFullYear()
 <body class="h-screen relative">
     <div class="">
 <main class="">
-    <Nav />
+    <Nav client:load />
     <script is:inline>
         const getThemePreference = () => {
             if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
@@ -62,25 +62,25 @@ const year = new Date().getFullYear()
 <section class="px-2 md:px-96 w-full mt-16">
     <div class="border rounded-2xl h-fit p-2 ">
     <div class="sm:mx-auto sm:w-full sm:max-w-md grid grid-cols-1 items-center"><br>
-        <h2 class="text-center text-2xl text-black dark:text-white">Login to {config.name}</h2>
-        <span class="text-center text-xs text-black dark:text-white">Don't have an account? <a href="/auth/register" class="text-red-500">Register now</a></span>
+        <h2 class="text-center text-2xl">Login to {config.name}</h2>
+        <span class="text-center text-xs">Don't have an account? <a href="/auth/register" class="text-red-500">Register now</a></span>
       </div><br>
       <div class="flex justify-center">
    <form action="/api/auth/signin" method="post" class="grid grid-cols-1 w-full">
-    <Label className="text-black dark:text-white" htmlFor="email">Email:</Label>
-    <Input className="rounded-xl border-black border-solid border-2 test-size-xs px-2 py-1 mb-1" type="email" name="email" id="email" /><br>
-    <Label className="text-black dark:text-white" htmlFor="password">Password:</Label>
-    <Input className="rounded-xl border-black border-solid border-2 test-size-xs px-2 py-1 mb-5" type="password" name="password" id="password" />
+    <Label className="" htmlFor="email">Email:</Label>
+    <Input className="rounded-xl border test-size-xs px-2 py-1 mb-1" type="email" name="email" id="email" /><br>
+    <Label className="" htmlFor="password">Password:</Label>
+    <Input className="rounded-xl border test-size-xs px-2 py-1 mb-5" type="password" name="password" id="password" />
     <div class="flex justify-center">
-    <Button variant='outline' className="relative rounded-lg text-black dark:text-white px-5 py-1"> Login </Button><br>
+    <Button variant='outline' className="relative rounded-lg px-5 py-1"> Login </Button><br>
 </div>
     <div class="flex w-full justify-center mt-2 mb-2">
-      <span class="text-black dark:text-white col-span-3 text-lg text-center">Login with</span>
+      <span class="col-span-3 text-lg text-center">Login with</span>
   </div>
-  <div class="flex justify-center">
-          <button value="google" name="provider" type="submit" class="relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google"></i></button>
-          <button value="github" name="provider" type="submit" class="relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github"></i></button>
-          <button value="discord" name="provider" type="submit"class="relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord"></i></button>
+  <div class="flex justify-center gap-2">
+          <button value="google" name="provider" type="submit" class="border relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-google">  Google</i></button>
+          <button value="github" name="provider" type="submit" class="border relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-github">  Github</i></button>
+          <button value="discord" name="provider" type="submit"class="border relative font-medium rounded-full text-lg p-2 text-center"><i class="fa-brands fa-discord">  Discord</i></button>
 </div>
    </form>
 </div>

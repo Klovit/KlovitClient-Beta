@@ -156,6 +156,6 @@ if (error) {
       };
       await db.set("installed", true)
       await db.set("config", config)
-      return redirect("/signin?success=Successfully installed KlovitClient")
+      return redirect("/auth/signin?success=Successfully installed KlovitClient")
       
 }

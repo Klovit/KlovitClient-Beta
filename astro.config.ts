@@ -39,3 +39,4 @@ console.log(
     chalk.white(' You can now access the dashboard at the following addresses - '));
 console.log("                 " + chalk.underline(`http://localhost:${process.env.APP_PORT}/`));
 console.log("                 " + chalk.underline(`http://0.0.0.0:${process.env.APP_PORT}/`));
+console.log("ey")

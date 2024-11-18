@@ -50,12 +50,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         path: "/",
       });
     
-      return redirect("/signin");
+      return redirect("/auth/signin");
     }
     
 
     if (error) {
-      return redirect(`/signin?error="${error.message}"`);
+      return redirect(`/auth/signin?error="${error.message}"`);
     }
 
 
@@ -182,5 +182,5 @@ const full_name = `${first_name} ${last_name}`
   }
   return result;  
 }
-return redirect(`/signin?registered="true"`);
+return redirect(`/auth/signin?registered="true"`);
 }

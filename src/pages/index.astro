@@ -22,7 +22,7 @@ if (!installed) {
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/auth/signin");
 }
 const refresh_token = refreshToken.value;
 const access_token = accessToken.value;
@@ -151,7 +151,7 @@ if (config.blacklist.users.includes(email)) {
   cookies.delete("sb-refresh-token", {
     path: "/",
   });
-return redirect("/signin?error=You're blacklisted from our hosting service.")
+return redirect("/auth/signin?error=You're blacklisted from our hosting service.")
 }
 const sidebarstate = cookies.get("sidebar:state")
 const storeenabled = config.coins.store.enabled
@@ -232,7 +232,7 @@ const earningenabled = config.coins.earn.enabled
                                                 </div>
                                                 <div>
                                                   <div class="mt-2">
-                                                    <Button variant='default'>Edit</Button> <Button variant='destructive'>Delete</Button>
+                                                    <Button variant='default'><Link href=`/server/edit?id=${serverData.attributes.id}`>Edit</Link></Button> <Button variant='destructive'>Delete</Button>
                                                   </div>
                                                 </div>
                                               </div>

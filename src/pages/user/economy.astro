@@ -1,7 +1,6 @@
 ---
 import chalk from 'chalk';
-import config from '../config';
-import '../styles/globals.css'
+const config = await db.get("config")import '../styles/globals.css'
 
 
 import { supabase } from "../lib/supabase";
@@ -18,7 +17,7 @@ const { cookies, redirect } = Astro;
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/auth/signin");
 }
 const refresh_token = refreshToken.value
 const access_token = accessToken.value

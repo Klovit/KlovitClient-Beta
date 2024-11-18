@@ -1,24 +1,20 @@
 ---
 import chalk from 'chalk';
-import config from '../config';
+const config = await db.get("config")
 import '../styles/globals.css'
 
 
-import { supabase } from "../lib/supabase";
-import db from '../database';
-import Nav from "../components/nav.astro";
-import restype from "../restype"
-import Header from "../components/head.astro"
-import Resources from '../components/resources.astro';
-import Footer from '../components/footer.astro'
-import Servers from '../components/servers.astro'
-import Mobnav from "../components/mobnav.astro";
+import { supabase } from "../../lib/supabase";
+import db from '../../database';
+import restype from "../../restype"
+import Header from "../../components/head.astro"
+import Footer from '../../components/footer.astro'
 const { cookies, redirect } = Astro;
 
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/auth/signin");
 }
 const refresh_token = refreshToken.value
 const access_token = accessToken.value

@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({request, cookies, redirect}) => {
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/auth/signin");
 }
 const { data, error } = await supabase.auth.setSession({
   refresh_token: refreshToken.value,
@@ -26,6 +26,7 @@ const { data, error } = await supabase.auth.setSession({
 });
 if (error) {
 console.log(error)
+return redirect("/auth/signin")
 }
 // Fetching data from SupaBase and giving it an identifier.
 const {

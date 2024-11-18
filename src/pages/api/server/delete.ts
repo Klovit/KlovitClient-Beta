@@ -1,24 +1,23 @@
 import type { APIRoute } from "astro";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import chalk from "chalk";
-import db from '../../database';
+import db from '../../../database';
 import { Response } from "node-fetch";
-import config from '../../config';
 import { ExpressRoute } from '../../../lib/endpoints';
-import doubleCsrfProtection from "../../middleware";
+import doubleCsrfProtection from "../../../middleware";
 import restype from "src/restype";
 
 const router = new ExpressRoute();
 router.use(doubleCsrfProtection)
 
 export const POST: APIRoute = async ({request, cookies, redirect}) => {
-
+const config = await db.get("config")
 
   // Session Validation.
 const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 if (!accessToken || !refreshToken) {
-  return redirect("/signin");
+  return redirect("/auth/signin");
 }
 const { data, error } = await supabase.auth.setSession({
   refresh_token: refreshToken.value,
@@ -26,6 +25,7 @@ const { data, error } = await supabase.auth.setSession({
 });
 if (error) {
 console.log(error)
+return redirect("/auth/signin")
 }
 // Fetching data from SupaBase and giving it an identifier.
 const {
@@ -76,9 +76,9 @@ let deletionresults = await fetch(
   }
 );
 let ok = await deletionresults.ok;
-if (ok !== true) return redirect("/dashboard?error=An error has occured while deleting your server.")
-return redirect("/dashboard?success=Successfully deleted your server.")
+if (ok !== true) return redirect("/?error=An error has occured while deleting your server.")
+return redirect("/?success=Successfully deleted your server.")
 } else {
-  return redirect("/dashboard?error=Unknown Error Occured.")
+  return redirect("/?error=Unknown Error Occured.")
 }
 }

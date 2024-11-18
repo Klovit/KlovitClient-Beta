@@ -6,13 +6,13 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   const authCode = url.searchParams.get("code");
 
   if (!authCode) {
-    return redirect(`/signin?error="No Code Provided."`);
+    return redirect(`/auth/signin?error="No Code Provided."`);
   }
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
   const { data: { user }, } = await supabase.auth.getUser()
   const metadata = user.user_metadata
-  console.log(metadata)
+  console.log(user)
   const email = data?.user?.email
   const rawusername = user.user_metadata.full_name
   const { access_token, refresh_token } = data.session;

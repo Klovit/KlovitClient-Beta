@@ -41,19 +41,19 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     if (error) {
       cookies.delete("sb-access-token", { path: "/" });
       cookies.delete("sb-refresh-token", { path: "/" });
-      return redirect(`/signin?error=${error.message}`);
+      return redirect(`/auth/signin?error=${error.message}`);
     }
 
-    return redirect(data?.url || "/signin");
+    return redirect(data?.url || "/auth/signin");
   }
 
   if (!email || !password) {
-    return redirect(`/signin?error=Email and password are required`);
+    return redirect(`/auth/signin?error=Email and password are required`);
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    return redirect(`/signin?error=${error.message}`);
+    return redirect(`/auth/signin?error=${error.message}`);
   }
 
   const { access_token, refresh_token } = data.session;

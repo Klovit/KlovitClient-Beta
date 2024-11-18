@@ -13,8 +13,8 @@ const {
     }
 });
 export default doubleCsrfProtection;
-export function onRequest ({ locals, request }, next) {
+export async function onRequest ({ locals, request }, next) {
     locals.csrfToken = generateToken;
     doubleCsrfProtection;
-    next();
+    next()
 }
