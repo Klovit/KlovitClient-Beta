@@ -43,7 +43,7 @@
         "@types/react-dom": "^18.3.0",
         "apexcharts": "^3.37.2",
         "astro": "^4.16.2",
-        "astro-toast": "github:BeastGamer81/astro-toast",
+        "astro-toast": "github:beastgamer81/astro-toast",
         "astro-utils": "^0.0.7",
         "autoprefixer": "^10.4.20",
         "axios": "^1.6.7",
